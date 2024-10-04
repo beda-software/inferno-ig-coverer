@@ -8,6 +8,7 @@ require_relative 'InfernoIGCoverer/version'
 require_relative 'InfernoIGCoverer/generator/ig_loader'
 require_relative 'InfernoIGCoverer/generator/ig_metadata_extractor'
 require_relative 'InfernoIGCoverer/generator/extension'
+require_relative 'InfernoIGCoverer/generator/search_test_generator'
 
 module InfernoIGCoverer
   class Generator
@@ -15,21 +16,22 @@ module InfernoIGCoverer
       ig_packages = Dir.glob(File.join(Dir.pwd, folder_path, '*.tgz'))
 
       ig_packages.each do |ig_package|
-        new(ig_package).generate(folder_path, output_path)
+        new(ig_package, output_path).generate(folder_path, output_path)
       end
     end
 
-    attr_accessor :ig_resources, :ig_metadata, :ig_file_name
+    attr_accessor :ig_resources, :ig_metadata, :ig_file_name, :output_path
 
-    def initialize(ig_file_name)
+    def initialize(ig_file_name, output_path)
       self.ig_file_name = ig_file_name
+      self.output_path = output_path
     end
 
     def generate(folder_path, output_path)
       puts "Generating tests for IG #{File.basename(ig_file_name)}"
       load_ig_package(folder_path)
       extract_metadata(output_path)
-      # generate_search_tests
+      generate_search_tests
       # generate_read_tests
       # generate_provenance_revinclude_search_tests
       # generate_validation_tests
@@ -43,15 +45,13 @@ module InfernoIGCoverer
     def extract_metadata(output_path)
       self.ig_metadata = IGMetadataExtractor.new(ig_resources).extract
 
-      base_output_dir = base_output_dir(output_path)
-
       FileUtils.mkdir_p(base_output_dir)
       File.open(File.join(base_output_dir, 'metadata.yml'), 'w') do |file|
         file.write(YAML.dump(ig_metadata.to_hash))
       end
     end
 
-    def base_output_dir(output_path)
+    def base_output_dir
       File.join(Dir.pwd, output_path, ig_metadata.ig_version)
     end
 
@@ -78,11 +78,11 @@ module InfernoIGCoverer
 
     def generate_search_tests
       SearchTestGenerator.generate(ig_metadata, base_output_dir)
-      generate_multiple_or_search_tests
-      generate_multiple_and_search_tests
-      generate_chain_search_tests
-      generate_special_identifier_search_tests
-      generate_special_identifiers_chain_search_tests
+      # generate_multiple_or_search_tests
+      # generate_multiple_and_search_tests
+      # generate_chain_search_tests
+      # generate_special_identifier_search_tests
+      # generate_special_identifiers_chain_search_tests
     end
 
     def generate_provenance_revinclude_search_tests

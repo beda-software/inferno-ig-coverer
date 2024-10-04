@@ -30,6 +30,7 @@ Gem::Specification.new do |spec|
   # end
   spec.files = [
     Dir['lib/**/*.rb'],
+    Dir['lib/**/*.erb'],
     Dir['lib/**/*.json'],
     Dir['lib/**/*.tgz'],
     Dir['lib/**/*.yml'],
